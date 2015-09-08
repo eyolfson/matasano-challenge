@@ -6,6 +6,8 @@
 
 static uint8_t buffer[BUFFER_SIZE];
 
+static uint8_t frequency[256];
+
 uint8_t ascii_hex_to_value(uint8_t ascii)
 {
     if (ascii >= '0' && ascii <= '9') {
@@ -25,19 +27,53 @@ uint8_t ascii_hex_to_value(uint8_t ascii)
 
 void xor_cipher(uint8_t *input)
 {
+    if (input == 0 || *input == 0) {
+        printf("Zero length input\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < 256; ++i) {
+        frequency[i] = 0;
+    }
     uint8_t value;
-    uint8_t *output = buffer;
-    while (*input != 0) {
-        value = ascii_hex_to_value(*input);
-        ++input;
-        if (*input == 0) {
+    uint8_t *current = input;
+    while (*current != 0) {
+        value = ascii_hex_to_value(*current);
+        ++current;
+        if (*current == 0) {
             printf("Invalid string\n");
             exit(1);
         }
-        value = (value << 4) + ascii_hex_to_value(*input);
-        ++input;
+        value = (value << 4) + ascii_hex_to_value(*current);
+        ++current;
 
-        *output = value ^ 88; /* xor with 88 */
+        ++frequency[value];
+    }
+
+    uint8_t max_byte;
+    uint8_t max_freq = 0;
+    for (uint16_t i = 0; i < 256; ++i) {
+        if (frequency[i] > max_freq) {
+            max_freq = frequency[i];
+            max_byte = i;
+        }
+    }
+    /* Guess that the most frequent byte is the space character (32) */
+    uint8_t decode_byte = max_byte ^ 32;
+
+    uint8_t *output = buffer;
+    current = input;
+    while (*current != 0) {
+        value = ascii_hex_to_value(*current);
+        ++current;
+        if (*current == 0) {
+            printf("Invalid string\n");
+            exit(1);
+        }
+        value = (value << 4) + ascii_hex_to_value(*current);
+        ++current;
+
+        *output = value ^ decode_byte; /* xor with 88 in this case */
         ++output;
     }
     *output = 0;
