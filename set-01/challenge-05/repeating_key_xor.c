@@ -19,11 +19,11 @@ uint8_t convert_value_to_ascii_hex(uint8_t value)
 }
 
 size_t repeating_key_xor(const char *input,
-                       size_t input_size,
-                       const char *key,
-                       size_t key_size,
-                       char *output,
-                       size_t output_max_size)
+                         size_t input_size,
+                         const char *key,
+                         size_t key_size,
+                         char *output,
+                         size_t output_max_size)
 {
     size_t output_used_size = 0;
     size_t key_index = 0;
