@@ -2,7 +2,21 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+uint8_t convert_value_to_ascii_hex(uint8_t value)
+{
+    if (value >= 16) {
+        exit(2);
+    }
+    else if (value < 10) {
+        return value + '0';
+    }
+    else {
+        return (value - 10) + 'a';
+    }
+}
 
 size_t repeating_key_xor(const char *input,
                        size_t input_size,
@@ -24,18 +38,8 @@ size_t repeating_key_xor(const char *input,
         uint8_t first_4_bits = val >> 4;
         uint8_t last_4_bits = val & 0x0F;
 
-        if (first_4_bits < 10) {
-            output[output_used_size] = first_4_bits + '0';
-        }
-        else {
-            output[output_used_size] = (first_4_bits - 10) + 'a';
-        }
-        if (last_4_bits < 10) {
-            output[output_used_size + 1] = last_4_bits + '0';
-        }
-        else {
-            output[output_used_size + 1] = (last_4_bits - 10) + 'a';
-        }
+        output[output_used_size] = convert_value_to_ascii_hex(first_4_bits);
+        output[output_used_size + 1] = convert_value_to_ascii_hex(last_4_bits);
         output_used_size += 2;
 
         ++key_index;
