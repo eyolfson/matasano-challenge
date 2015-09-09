@@ -98,8 +98,7 @@ int main()
 
     buffer[0] = 0;
 
-    uint8_t input_buffer[BUFFER_SIZE];
-    int fd = open("4cp.txt", O_RDONLY);
+    int fd = open("4.txt", O_RDONLY);
 
     size_t input_size;
     {
