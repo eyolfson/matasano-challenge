@@ -13,6 +13,7 @@
 
 uint32_t hamming_distance(uint8_t *i1, uint8_t *i2, size_t size)
 {
+    /* TODO: POPCNT instruction */
     uint32_t distance = 0;
     for (size_t i = 0; i < size; ++i) {
         for (uint8_t bit = 0; bit < 8; ++bit) {
