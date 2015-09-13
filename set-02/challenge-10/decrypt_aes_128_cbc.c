@@ -227,14 +227,3 @@ int main()
 
     return 0;
 }
-
-
-/*
-When encrypting:
-
-                 plaintext        plaintext
-                 I'm back and I'm START
-ciphertext
-0000000000000000 1234ef1432342323
-
-*/
