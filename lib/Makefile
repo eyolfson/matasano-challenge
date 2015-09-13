@@ -1,4 +1,4 @@
-CFLAGS := -fPIC -I../include
+CFLAGS := -O2 -Wall -fPIC -I../include
 
 libmatasano.so: file_content.o
 	$(CC) -shared $^ -o $@

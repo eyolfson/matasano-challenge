@@ -31,7 +31,7 @@ int fini_file_content(struct file_content *fc) {
     if (fc->data == NULL || fc == 0) {
         return 1;
     }
-    munmap(fc->data, fc->size);
+    munmap((void *) fc->data, fc->size);
     fc->data = NULL;
     fc->size = 0;
     return 0;

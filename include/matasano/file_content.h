@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 struct file_content {
-    uint8_t *data;
+    const uint8_t *data;
     size_t size;
 };
 
