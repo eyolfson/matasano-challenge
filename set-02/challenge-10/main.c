@@ -23,17 +23,17 @@ int main()
     struct static_bytes key_bytes;
     str_literal(&key_bytes, "YELLOW SUBMARINE");
 
+    uint8_t iv_bytes[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
     struct malloced_bytes decrypted_bytes;
-    ret = aes_128_cbc_decrypt(&decrypted_bytes, key_bytes.data, key_bytes.size,
+    ret = aes_128_cbc_decrypt(&decrypted_bytes,
+                              iv_bytes, 16,
+                              key_bytes.data, key_bytes.size,
                               data_bytes.data, data_bytes.size);
     if (ret != 0) {
         fini_malloced_bytes(&data_bytes);
         fini_mmaped_bytes(&file_bytes);
         return ret;
-    }
-
-    for (size_t i = 0; i < (decrypted_bytes.size - 16); ++i) {
-        printf("%c", decrypted_bytes.data[i]);
     }
 
     uint8_t last_byte = decrypted_bytes.data[decrypted_bytes.size - 1];
