@@ -194,6 +194,26 @@ int base64_to_bytes(struct malloced_bytes *mb,
     return 1;
 }
 
+int random_bytes(struct malloced_bytes* mb, size_t size)
+{
+    if (mb == NULL || size == 0) {
+        return 1;
+    }
+
+    uint8_t *data = malloc(size);
+    if (data == NULL) {
+        return 1;
+    }
+
+    for (size_t i = 0; i < size; ++i) {
+        data[i] = rand() % 256;
+    }
+
+    mb->data = data;
+    mb->size = size;
+    return 0;
+}
+
 int fini_malloced_bytes(struct malloced_bytes *mb)
 {
     if (mb == NULL || mb->data == NULL) {
@@ -206,58 +226,3 @@ int fini_malloced_bytes(struct malloced_bytes *mb)
     mb->size = 0;
     return 0;
 }
-
-
-/* int dynamic_to_read_only_bytes(struct read_only_bytes *rob, */
-/*                                struct dynamic_bytes *db) */
-/* { */
-/*     if (rob == NULL || db == NULL || db->data == NULL) { */
-/*         return 1; */
-/*     } */
-/*     rob->data = db->data; */
-/*     rob->size = db->size; */
-/*     return 0; */
-/* } */
-
-/* int init_dynamic_bytes(struct dynamic_bytes *db) */
-/* { */
-/*     if (db == NULL) { */
-/*         return 1; */
-/*     } */
-/*     void *p = malloc(4096); */
-/*     if (p == NULL) { */
-/*         return 1; */
-/*     } */
-/*     db->capacity = 4096; */
-/*     db->size = 0; */
-/*     db->data = (uint8_t *) p; */
-/*     return 0; */
-/* } */
-
-/* int append_byte(struct dynamic_bytes *db, uint8_t b) */
-/* { */
-/*     if (db == NULL || db->data == NULL) { */
-/*         return 1; */
-/*     } */
-/*     size_t i = db->size; */
-/*     if (db->capacity > i) { */
-/*         (db->data)[i] = b; */
-/*         ++(db->size); */
-/*         return 0; */
-/*     } */
-/*     else { */
-/*         return 1; */
-/*     } */
-/* } */
-
-/* int fini_dynamic_bytes(struct dynamic_bytes *db) */
-/* { */
-/*     if (db == NULL || db->data == NULL) { */
-/*         return 1; */
-/*     } */
-/*     free(db->data); */
-/*     db->data = NULL; */
-/*     db->capacity = 0; */
-/*     db->size = 0; */
-/*     return 0; */
-/* } */

@@ -26,6 +26,7 @@ int fini_mmaped_bytes(struct mmaped_bytes *mb);
 
 int base64_to_bytes(struct malloced_bytes *mb,
                     const uint8_t *input, size_t input_size);
+int random_bytes(struct malloced_bytes* mb, size_t size);
 int fini_malloced_bytes(struct malloced_bytes *mb);
 
 #endif

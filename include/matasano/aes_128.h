@@ -3,6 +3,8 @@
 
 #include "matasano/utils.h"
 
+#define AES_BLOCK_SIZE 16
+
 int aes_128_cbc_decrypt(struct malloced_bytes *mb,
                         const uint8_t *initialization_vector,
                         size_t initialization_vector_size,
