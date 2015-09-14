@@ -1,7 +1,8 @@
+CC := clang
 CFLAGS := -O2 -Wall -fPIC -I../include
 
-libmatasano.so: file_content.o
-	$(CC) -shared $^ -o $@
+libmatasano.so: aes_128.o utils.o
+	$(CC) -shared $^ -o $@ -lcrypto
 
 .PHONY: clean
 clean:

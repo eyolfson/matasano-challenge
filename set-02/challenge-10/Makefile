@@ -1,8 +1,23 @@
-CC := clang
+NAME := cbc-decrypt
 
-decrypt_aes_128_cbc: decrypt_aes_128_cbc.c
-	$(CC) -O2 $^ -o $@ -lcrypto
+CC := clang
+CFLAGS := -O2 -Wall -I../../include
+LDFLAGS := -L../../lib -lmatasano
+
+.PHONY: all
+all: libmatasano $(NAME)
+
+.PHONY: run
+run: all
+	LD_LIBRARY_PATH=../../lib ./$(NAME)
+
+$(NAME): main.c
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+.PHONY: libmatasano
+libmatasano:
+	$(MAKE) -C ../../lib
 
 .PHONY: clean
 clean:
-	rm -f decrypt_aes_128_cbc
+	rm -f $(NAME)
