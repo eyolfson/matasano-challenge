@@ -3,6 +3,7 @@
 #include <openssl/aes.h>
 
 #include <stdlib.h>
+#include <string.h>
 
 int aes_detect_ecb(bool *is_ecb, const uint8_t *input, size_t input_size)
 {
@@ -22,23 +23,18 @@ int aes_detect_ecb(bool *is_ecb, const uint8_t *input, size_t input_size)
     size_t valid_blocks = 0;
     for (size_t block = 0; block < blocks; ++block) {
         bool match = false;
-        for (size_t valid_block = 0; valid_block < valid_blocks; ++valid_block) {
-            match = true;
-            for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
-                if (buffer[(valid_block * AES_BLOCK_SIZE) + i] != input[(block * AES_BLOCK_SIZE) + i]) {
-                    match = false;
-                    break;
-                }
-            }
+        const uint8_t *input_block = input + (block * AES_BLOCK_SIZE);
+        for (size_t i = 0; i < valid_blocks; ++i) {
+            match = memcmp(buffer + (i * AES_BLOCK_SIZE),
+                           input_block, AES_BLOCK_SIZE) == 0;
 
             if (match) {
                 break;
             }
         }
         if (match == false) {
-            for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
-                buffer[(valid_blocks * AES_BLOCK_SIZE) + i] = input[(block * AES_BLOCK_SIZE) + i];
-            }
+            memcpy(buffer + (valid_blocks * AES_BLOCK_SIZE),
+                   input_block, AES_BLOCK_SIZE);
             ++valid_blocks;
         }
     }
