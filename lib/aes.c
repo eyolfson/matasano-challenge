@@ -1,4 +1,4 @@
-#include "matasano/aes_128.h"
+#include "matasano/aes.h"
 
 #include <openssl/aes.h>
 

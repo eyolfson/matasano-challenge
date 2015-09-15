@@ -1,5 +1,5 @@
-#ifndef MATASANO_AES_128_H
-#define MATASANO_AES_128_H
+#ifndef MATASANO_AES_H
+#define MATASANO_AES_H
 
 #include "matasano/utils.h"
 
