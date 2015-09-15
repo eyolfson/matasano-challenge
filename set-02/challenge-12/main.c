@@ -139,11 +139,17 @@ int main()
     /* Detect ECB mode */
     {
         uint8_t *bytes = calloc(block_size * 2, 1);
+        if (bytes == NULL) {
+            fini_malloced_bytes(&unknown_bytes);
+            fini_malloced_bytes(&key_bytes);
+            return 1;
+        }
         struct malloced_bytes plaintext_bytes;
         ret = append_bytes(&plaintext_bytes,
                            bytes, block_size * 2,
                            unknown_bytes.data, unknown_bytes.size);
         if (ret != 0) {
+            free(bytes);
             fini_malloced_bytes(&unknown_bytes);
             fini_malloced_bytes(&key_bytes);
             return ret;
@@ -155,6 +161,7 @@ int main()
                                 plaintext_bytes.data, plaintext_bytes.size);
         if (ret != 0) {
             fini_malloced_bytes(&plaintext_bytes);
+            free(bytes);
             fini_malloced_bytes(&unknown_bytes);
             fini_malloced_bytes(&key_bytes);
             return ret;
@@ -165,6 +172,7 @@ int main()
         if (ret != 0) {
             fini_malloced_bytes(&encrypted_bytes);
             fini_malloced_bytes(&plaintext_bytes);
+            free(bytes);
             fini_malloced_bytes(&unknown_bytes);
             fini_malloced_bytes(&key_bytes);
             return ret;
@@ -172,6 +180,7 @@ int main()
 
         fini_malloced_bytes(&encrypted_bytes);
         fini_malloced_bytes(&plaintext_bytes);
+        free(bytes);
 
         if (is_ecb) {
             printf("Encryption function uses ECB\n");
@@ -183,6 +192,104 @@ int main()
         }
     }
 
+    uint8_t first_byte = ' ';
+    uint8_t last_byte = '~';
+
+    uint8_t *bytes = malloc(block_size);
+    if (bytes == NULL) {
+        fini_malloced_bytes(&unknown_bytes);
+        fini_malloced_bytes(&key_bytes);
+
+    }
+    uint8_t *blocks = malloc(block_size * (last_byte - first_byte + 1));
+    if (blocks == NULL) {
+        free(bytes);
+        fini_malloced_bytes(&unknown_bytes);
+        fini_malloced_bytes(&key_bytes);
+
+    }
+
+    for (size_t i = 0; i < (block_size - 1); ++i) {
+        bytes[i] = 'A';
+    }
+
+    for (uint8_t byte = first_byte; byte <= last_byte; ++byte) {
+        bytes[block_size - 1] = byte;
+        struct malloced_bytes plaintext_bytes;
+        ret = append_bytes(&plaintext_bytes,
+                           bytes, block_size,
+                           unknown_bytes.data, unknown_bytes.size);
+        if (ret != 0) {
+            free(blocks);
+            free(bytes);
+            fini_malloced_bytes(&unknown_bytes);
+            fini_malloced_bytes(&key_bytes);
+            return ret;
+        }
+
+        struct malloced_bytes encrypted_bytes;
+        ret = aes_128_ecb_encrypt(&encrypted_bytes,
+                                key_bytes.data, key_bytes.size,
+                                plaintext_bytes.data, plaintext_bytes.size);
+        if (ret != 0) {
+            fini_malloced_bytes(&plaintext_bytes);
+            free(blocks);
+            free(bytes);
+            fini_malloced_bytes(&unknown_bytes);
+            fini_malloced_bytes(&key_bytes);
+            return ret;
+        }
+
+        memcpy(blocks + ((byte - first_byte) * block_size),
+               encrypted_bytes.data,
+               block_size);
+
+        fini_malloced_bytes(&encrypted_bytes);
+        fini_malloced_bytes(&plaintext_bytes);
+    }
+
+    /* Find the first byte */
+    {
+        struct malloced_bytes plaintext_bytes;
+        ret = append_bytes(&plaintext_bytes,
+                           bytes, block_size - 1,
+                           unknown_bytes.data, unknown_bytes.size);
+        if (ret != 0) {
+            free(blocks);
+            free(bytes);
+            fini_malloced_bytes(&unknown_bytes);
+            fini_malloced_bytes(&key_bytes);
+            return ret;
+        }
+
+        struct malloced_bytes encrypted_bytes;
+        ret = aes_128_ecb_encrypt(&encrypted_bytes,
+                                key_bytes.data, key_bytes.size,
+                                plaintext_bytes.data, plaintext_bytes.size);
+        if (ret != 0) {
+            fini_malloced_bytes(&plaintext_bytes);
+            free(blocks);
+            free(bytes);
+            fini_malloced_bytes(&unknown_bytes);
+            fini_malloced_bytes(&key_bytes);
+            return ret;
+        }
+
+        /* Check */
+        for (uint8_t byte = first_byte; byte <= last_byte; ++byte) {
+            if (memcmp(blocks + ((byte - first_byte) * block_size),
+                       encrypted_bytes.data,
+                       block_size) == 0) {
+                printf("First byte is: %c\n", byte);
+            }
+        }
+
+        fini_malloced_bytes(&encrypted_bytes);
+        fini_malloced_bytes(&plaintext_bytes);
+    }
+
+    free(blocks);
+    free(bytes);
     fini_malloced_bytes(&unknown_bytes);
     fini_malloced_bytes(&key_bytes);
     return ret;
