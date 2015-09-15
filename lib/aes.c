@@ -4,6 +4,56 @@
 
 #include <stdlib.h>
 
+int aes_detect_ecb(bool *is_ecb, const uint8_t *input, size_t input_size)
+{
+    if (is_ecb == NULL || input == NULL || input_size == 0) {
+        return 1;
+    }
+    if (input_size % 16 != 0) {
+        return 1;
+    }
+
+    size_t blocks = input_size / 16;
+    uint8_t *buffer = malloc(input_size);
+    if (buffer == NULL) {
+        return 1;
+    }
+
+    size_t valid_blocks = 0;
+    for (size_t block = 0; block < blocks; ++block) {
+        bool match = false;
+        for (size_t valid_block = 0; valid_block < valid_blocks; ++valid_block) {
+            match = true;
+            for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
+                if (buffer[(valid_block * AES_BLOCK_SIZE) + i] != input[(block * AES_BLOCK_SIZE) + i]) {
+                    match = false;
+                    break;
+                }
+            }
+
+            if (match) {
+                break;
+            }
+        }
+        if (match == false) {
+            for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
+                buffer[(valid_blocks * AES_BLOCK_SIZE) + i] = input[(block * AES_BLOCK_SIZE) + i];
+            }
+            ++valid_blocks;
+        }
+    }
+
+    free(buffer);
+
+    if (valid_blocks < blocks) {
+        *is_ecb = true;
+    }
+    else {
+        *is_ecb = false;
+    }
+    return 0;
+}
+
 int aes_128_cbc_decrypt(struct malloced_bytes *mb,
                         const uint8_t *initialization_vector,
                         size_t initialization_vector_size,

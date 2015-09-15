@@ -61,7 +61,7 @@ int fini_mmaped_bytes(struct mmaped_bytes *mb) {
 int base64_to_bytes(struct malloced_bytes *mb,
                     const uint8_t *input, size_t input_size)
 {
-    if (mb == NULL) {
+    if (mb == NULL || input == NULL || input_size == 0) {
         return 1;
     }
 
@@ -185,11 +185,158 @@ int base64_to_bytes(struct malloced_bytes *mb,
         }
     }
 
+    if (state != 0 & state != 5) {
+        goto base64_to_bytes_error;
+    }
+
     mb->data = data;
     mb->size = size;
     return 0;
 
  base64_to_bytes_error:
+    free(data);
+    return 1;
+}
+
+int hex_to_bytes(struct malloced_bytes *mb,
+                 const uint8_t *input, size_t input_size)
+{
+    if (mb == NULL || input == NULL || input_size == 0) {
+        return 1;
+    }
+
+    size_t capacity = 4096;
+    size_t size = 0;
+    uint8_t *data = malloc(capacity);
+    if (data == NULL) {
+        return 1;
+    }
+
+    /* States
+     * ------
+     * 0 - tmp is empty
+     * 1 - tmp has bits 7-4 valid [byte output]
+     */
+    uint8_t state = 0;
+    uint8_t tmp;
+
+    for(size_t i = 0; i < input_size; ++i) {
+        /* Ignore whitespace */
+        if (input[i] == '\n' || input[i] == '\t' || input[i] == ' ') {
+            continue;
+        }
+
+        /* Convert the character to a 4 bit value */
+        uint8_t value;
+        if (input[i] >= '0' && input[i] <= '9') {
+            value = input[i] - '0';
+        }
+        else if (input[i] >= 'A' && input[i] <= 'Z') {
+            value = input[i] - 'A' + 10;
+        }
+        else if (input[i] >= 'a' && input[i] <= 'z') {
+            value = input[i] - 'a' + 10;
+        }
+        else {
+            goto hex_to_bytes_error;
+        }
+
+        /* Make tmp a valid byte */
+        switch(state) {
+        case 0:
+            tmp = value << 4;
+            state = 1;
+            break;
+        case 1:
+            tmp = tmp + value;
+            /* Output a valid byte */
+            if (size >= capacity) {
+                capacity += 4096;
+                void *ptr = realloc(data, capacity);
+                if (ptr == NULL) {
+                    goto hex_to_bytes_error;
+                }
+                data = ptr;
+            }
+            data[size] = tmp;
+            ++size;
+            state = 0;
+            break;
+        }
+    }
+
+    if (state != 0) {
+        goto hex_to_bytes_error;
+    }
+
+    mb->data = data;
+    mb->size = size;
+    return 0;
+
+ hex_to_bytes_error:
+    free(data);
+    return 1;
+}
+
+static uint8_t byte_to_hex(uint8_t byte)
+{
+    if (byte >= 16) {
+        return 0;
+    }
+    else if (byte < 10) {
+        return byte + '0';
+    }
+    else {
+        return (byte - 10) + 'a';
+    }
+}
+
+int bytes_to_hex(struct malloced_bytes *mb,
+                 const uint8_t *input, size_t input_size)
+{
+    if (mb == NULL || input == NULL || input_size == 0) {
+        return 1;
+    }
+
+    size_t capacity = 4096;
+    size_t size = 0;
+    uint8_t *data = malloc(capacity);
+    if (data == NULL) {
+        return 1;
+    }
+
+    for(size_t i = 0; i < input_size; ++i) {
+        if ((size + 2) >= capacity) {
+            capacity += 4096;
+            void *ptr = realloc(data, capacity);
+            if (ptr == NULL) {
+                goto bytes_to_hex_error;
+            }
+            data = ptr;
+        }
+
+        uint8_t first_4_bits = input[i] >> 4;
+        uint8_t last_4_bits = input[i] & 0x0F;
+
+        uint8_t first_ascii = byte_to_hex(first_4_bits);
+        if (first_ascii == 0) {
+            goto bytes_to_hex_error;
+        }
+        data[size] = first_ascii;
+        ++size;
+        uint8_t second_ascii = byte_to_hex(last_4_bits);
+        if (second_ascii == 0) {
+            goto bytes_to_hex_error;
+        }
+        data[size] = second_ascii;
+        ++size;
+    }
+
+    mb->data = data;
+    mb->size = size;
+    return 0;
+
+ bytes_to_hex_error:
     free(data);
     return 1;
 }

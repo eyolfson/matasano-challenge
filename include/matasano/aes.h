@@ -3,7 +3,11 @@
 
 #include "matasano/utils.h"
 
+#include <stdbool.h>
+
 #define AES_BLOCK_SIZE 16
+
+int aes_detect_ecb(bool *is_ecb, const uint8_t *input, size_t input_size);
 
 int aes_128_cbc_decrypt(struct malloced_bytes *mb,
                         const uint8_t *initialization_vector,
