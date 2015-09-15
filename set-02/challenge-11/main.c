@@ -1,61 +1,10 @@
 #include "matasano/aes.h"
 #include "matasano/utils.h"
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-int detect_ecb_mode(bool *is_ecb_mode, const uint8_t *input, size_t input_size)
-{
-    if (is_ecb_mode == NULL || input == NULL || input_size == 0) {
-        return 1;
-    }
-    if (input_size % 16 != 0) {
-        return 1;
-    }
-
-    size_t blocks = input_size / 16;
-    uint8_t *buffer = malloc(input_size);
-    if (buffer == NULL) {
-        return 1;
-    }
-
-    size_t valid_blocks = 0;
-    for (size_t block = 0; block < blocks; ++block) {
-        bool match = false;
-        for (size_t valid_block = 0; valid_block < valid_blocks; ++valid_block) {
-            match = true;
-            for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
-                if (buffer[(valid_block * AES_BLOCK_SIZE) + i] != input[(block * AES_BLOCK_SIZE) + i]) {
-                    match = false;
-                    break;
-                }
-            }
-
-            if (match) {
-                break;
-            }
-        }
-        if (match == false) {
-            for (size_t i = 0; i < AES_BLOCK_SIZE; ++i) {
-                buffer[(valid_blocks * AES_BLOCK_SIZE) + i] = input[(block * AES_BLOCK_SIZE) + i];
-            }
-            ++valid_blocks;
-        }
-    }
-
-    free(buffer);
-
-    if (valid_blocks < blocks) {
-        *is_ecb_mode = true;
-    }
-    else {
-        *is_ecb_mode = false;
-    }
-    return 0;
-}
 
 int encryption_oracle(struct malloced_bytes *mb,
                       const uint8_t *input, size_t input_size)
@@ -143,13 +92,13 @@ int main()
         return ret;
     }
 
-    bool is_ecb_mode;
-    ret = detect_ecb_mode(&is_ecb_mode, encrypted_bytes.data, encrypted_bytes.size);
+    bool is_ecb;
+    ret = aes_detect_ecb(&is_ecb, encrypted_bytes.data, encrypted_bytes.size);
     if (ret != 0) {
         return ret;
     }
 
-    if (is_ecb_mode) {
+    if (is_ecb) {
         printf("Detected data encrypted with ECB\n");
     }
     else {
