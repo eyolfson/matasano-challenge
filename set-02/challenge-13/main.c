@@ -103,6 +103,31 @@ static int profile_for(struct malloced_bytes *mb,
     return ret;
 }
 
+/*
+This "attack" boils down to first encrypting this:
+
+email=AAAAAAAAAAAAA&uid=10&role=user
+----------------                ----
+                ----------------
+
+We take the first 2 blocks here and use them for the first 2 blocks of our
+encrypted data
+
+email=AAAAAAAAAAadmin&uid=10&role=user
+----------------                ------
+                ----------------
+
+We take the second block here and use it for the third block of our encrypted
+data. This results in the string:
+
+email=AAAAAAAAAAAAA&uid=10&role=admin&uid=10&rol
+----------------                ----------------
+                ----------------
+
+However, this relies on the parser output not being validated. There is a
+duplicate key (uid) and a key without a value (rol).
+*/
+
 int main()
 {
     int ret = 0;
