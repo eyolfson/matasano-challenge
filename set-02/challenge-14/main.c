@@ -75,7 +75,6 @@ static int find_ecb_padding(size_t *padding_size)
             return 1;
         }
     }
-    
 
     for (size_t i = 32; i <= 48; ++i) {
         struct malloced_bytes encrypted_bytes;
