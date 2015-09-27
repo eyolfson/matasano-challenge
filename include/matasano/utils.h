@@ -24,6 +24,13 @@ int str_literal(struct static_bytes *sb, const char *s);
 int file_content(struct mmaped_bytes *mb, const char *path);
 int fini_mmaped_bytes(struct mmaped_bytes *mb);
 
+int append_bytes_2(struct malloced_bytes *mb,
+                   const uint8_t *first, size_t first_size,
+                   const uint8_t *second, size_t second_size);
+int append_bytes_3(struct malloced_bytes *mb,
+                   const uint8_t *first, size_t first_size,
+                   const uint8_t *second, size_t second_size,
+                   const uint8_t *third, size_t third_size);
 int base64_to_bytes(struct malloced_bytes *mb,
                     const uint8_t *input, size_t input_size);
 int hex_to_bytes(struct malloced_bytes *mb,

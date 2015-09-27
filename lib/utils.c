@@ -58,6 +58,78 @@ int fini_mmaped_bytes(struct mmaped_bytes *mb) {
     return 0;
 };
 
+int append_bytes_2(struct malloced_bytes *mb,
+                   const uint8_t *first, size_t first_size,
+                   const uint8_t *second, size_t second_size)
+{
+    if (mb == NULL) {
+        return 1;
+    }
+    if (first == NULL && first_size != 0) {
+        return 1;
+    }
+    if (second == NULL && second_size != 0) {
+        return 1;
+    }
+
+    size_t size = first_size + second_size;
+    if (size == 0) {
+        return 1;
+    }
+    uint8_t padding_bytes = 16 - (size % 16);
+    size += padding_bytes;
+    uint8_t *data = malloc(size);
+    if (data == NULL) {
+        return 1;
+    }
+    memcpy(data, first, first_size);
+    memcpy(data + first_size, second, second_size);
+    memset(data + first_size + second_size, padding_bytes, padding_bytes);
+
+    mb->data = data;
+    mb->size = size;
+    return 0;
+}
+
+int append_bytes_3(struct malloced_bytes *mb,
+                   const uint8_t *first, size_t first_size,
+                   const uint8_t *second, size_t second_size,
+                   const uint8_t *third, size_t third_size)
+{
+    if (mb == NULL) {
+        return 1;
+    }
+    if (first == NULL && first_size != 0) {
+        return 1;
+    }
+    if (second == NULL && second_size != 0) {
+        return 1;
+    }
+    if (third == NULL && third_size != 0) {
+        return 1;
+    }
+
+    size_t size = first_size + second_size + third_size;
+    if (size == 0) {
+        return 1;
+    }
+    uint8_t padding_bytes = 16 - (size % 16);
+    size += padding_bytes;
+    uint8_t *data = malloc(size);
+    if (data == NULL) {
+        return 1;
+    }
+    memcpy(data, first, first_size);
+    memcpy(data + first_size, second, second_size);
+    memcpy(data + first_size + second_size, third, third_size);
+    memset(data + first_size + second_size + third_size,
+           padding_bytes, padding_bytes);
+
+    mb->data = data;
+    mb->size = size;
+    return 0;
+}
+
 int base64_to_bytes(struct malloced_bytes *mb,
                     const uint8_t *input, size_t input_size)
 {
