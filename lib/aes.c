@@ -142,6 +142,48 @@ int aes_128_cbc_encrypt(struct malloced_bytes *mb,
     return 0;
 }
 
+int aes_128_ctr(struct malloced_bytes *mb,
+                const uint8_t *key_data, size_t key_size,
+                const uint8_t *input_data, size_t input_size)
+{
+    if (mb == NULL
+        || key_data == NULL
+        || input_data == NULL) {
+        return 1;
+    }
+    if (key_size != 16) {
+        return 1;
+    }
+
+    size_t size = input_size;
+    uint8_t *data = malloc(size);
+    if (data == NULL) {
+        return 1;
+    }
+
+    AES_KEY aes_key;
+    AES_set_encrypt_key(key_data, key_size * 8, &aes_key);
+
+    uint8_t temp[AES_BLOCK_SIZE];
+    uint64_t running_counter[2] = {0, 0};
+
+    for (size_t i = 0; i < size; i += AES_BLOCK_SIZE) {
+        AES_encrypt((const uint8_t *) running_counter, temp, &aes_key);
+        for (size_t j = 0; j < AES_BLOCK_SIZE; ++j) {
+            size_t index = i + j;
+            if (index >= size) {
+                break;
+            }
+            data[index] = temp[j] ^ input_data[index];
+        }
+        ++(running_counter[1]);
+    }
+
+    mb->data = data;
+    mb->size = size;
+    return 0;
+}
+
 int aes_128_ecb_decrypt(struct malloced_bytes *mb,
                         const uint8_t *key, size_t key_size,
                         const uint8_t *input, size_t input_size)
