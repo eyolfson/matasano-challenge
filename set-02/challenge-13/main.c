@@ -143,21 +143,51 @@ int main()
     key_data = key_bytes.data;
     key_size = key_bytes.size;
 
-    struct static_bytes test_bytes;
-    ret = str_literal(&test_bytes, "foo@bar.com");
-    if (ret != 0) {
-        fini_malloced_bytes(&key_bytes);
-        return ret;
-    }
+    struct static_bytes good_bytes;
+    str_literal(&good_bytes, "bob@gmail.com");
 
     struct malloced_bytes encrypted_bytes;
-    ret = profile_for(&encrypted_bytes, test_bytes.data, test_bytes.size);
+    ret = profile_for(&encrypted_bytes, good_bytes.data, good_bytes.size);
     if (ret != 0) {
         fini_malloced_bytes(&key_bytes);
         return ret;
     }
 
-    fini_malloced_bytes(&key_bytes);
+    uint8_t constructed_bytes[3 * AES_BLOCK_SIZE];
+    for (size_t i = 0; i < 32; ++i) {
+        constructed_bytes[i] = encrypted_bytes.data[i];
+    }
     fini_malloced_bytes(&encrypted_bytes);
+
+    struct static_bytes bad_bytes;
+    str_literal(&bad_bytes, "AAAAAAAAAAadmin");
+
+    ret = profile_for(&encrypted_bytes, bad_bytes.data, bad_bytes.size);
+    if (ret != 0) {
+        fini_malloced_bytes(&key_bytes);
+        return ret;
+    }
+
+    for (size_t i = 0; i < 16; ++i) {
+        constructed_bytes[i + 32] = encrypted_bytes.data[i + 16];
+    }
+    fini_malloced_bytes(&encrypted_bytes);
+
+    struct malloced_bytes decrypted_bytes;
+    ret = aes_128_ecb_decrypt(&decrypted_bytes,
+                              key_bytes.data, key_bytes.size,
+                              constructed_bytes, 3 * AES_BLOCK_SIZE);
+    if (ret != 0) {
+        fini_malloced_bytes(&key_bytes);
+        return ret;
+    }
+
+    printf("Decrypted\n=========\n");
+    for (size_t i = 0; i < decrypted_bytes.size; ++i) {
+        printf("%c", decrypted_bytes.data[i]);
+    }
+    printf("\n");
+
+    fini_malloced_bytes(&key_bytes);
     return 0;
 }
