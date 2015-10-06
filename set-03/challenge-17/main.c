@@ -124,12 +124,14 @@ int attack(struct response *r)
                         return ret;
                     }
                     tmp[i + j] = t;
-                    if (is_valid) {
-                        found_padding = AES_BLOCK_SIZE - (j + 1);
+                    if (!is_valid) {
+                        found_padding = AES_BLOCK_SIZE - j;
+                        break;
                     }
                 }
             }
         }
+        if (found_padding == 16) break;
 
         for (size_t j = (15 - found_padding);; --j) {
             /* Control the bytes since we know the correct padding size */
