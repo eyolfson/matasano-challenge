@@ -143,6 +143,7 @@ int aes_128_cbc_encrypt(struct malloced_bytes *mb,
 }
 
 int aes_128_ctr(struct malloced_bytes *mb,
+                uint32_t nonce,
                 const uint8_t *key_data, size_t key_size,
                 const uint8_t *input_data, size_t input_size)
 {
@@ -165,7 +166,7 @@ int aes_128_ctr(struct malloced_bytes *mb,
     AES_set_encrypt_key(key_data, key_size * 8, &aes_key);
 
     uint8_t temp[AES_BLOCK_SIZE];
-    uint64_t running_counter[2] = {0, 0};
+    uint64_t running_counter[2] = {nonce, 0};
 
     for (size_t i = 0; i < size; i += AES_BLOCK_SIZE) {
         AES_encrypt((const uint8_t *) running_counter, temp, &aes_key);

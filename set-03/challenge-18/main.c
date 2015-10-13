@@ -1,6 +1,8 @@
 #include "matasano/aes.h"
 #include "matasano/utils.h"
 
+#include <stdio.h>
+
 int main()
 {
     int ret = 0;
@@ -23,6 +25,7 @@ int main()
 
     struct malloced_bytes decrypted_bytes;
     ret = aes_128_ctr(&decrypted_bytes,
+                      0,
                       key_bytes.data, key_bytes.size,
                       unknown_bytes.data, unknown_bytes.size);
     if (ret != 0) {
@@ -44,11 +47,13 @@ int main()
 
     struct malloced_bytes encrypted_bytes;
     ret = aes_128_ctr(&encrypted_bytes,
-                              key_bytes.data, key_bytes.size,
-                              t.data, t.size);
+                      0,
+                      key_bytes.data, key_bytes.size,
+                      t.data, t.size);
     ret = aes_128_ctr(&decrypted_bytes,
-                              key_bytes.data, key_bytes.size,
-                              encrypted_bytes.data, encrypted_bytes.size);
+                      0,
+                      key_bytes.data, key_bytes.size,
+                      encrypted_bytes.data, encrypted_bytes.size);
     if (ret != 0) {
         fini_malloced_bytes(&encrypted_bytes);
         return ret;
