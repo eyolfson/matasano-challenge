@@ -22,7 +22,7 @@ int aes_128_cbc_encrypt(struct malloced_bytes *mb,
                         const uint8_t *input, size_t input_size);
 
 int aes_128_ctr(struct malloced_bytes *mb,
-                int32_t nonce,
+                uint32_t nonce,
                 const uint8_t *key_data, size_t key_size,
                 const uint8_t *input_data, size_t input_size);
 
