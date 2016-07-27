@@ -19,7 +19,7 @@
 
 struct mt19937 {
 	uint16_t index;
-	uint32_t mt[624];
+	uint32_t mt[MT19937_N];
 };
 
 void mt19937_init(struct mt19937 *mt19937, uint32_t seed);
