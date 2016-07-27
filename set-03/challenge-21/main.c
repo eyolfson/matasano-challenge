@@ -1,6 +1,5 @@
 #include "matasano/mt19937.h"
 
-#include <stdint.h>
 #include <stdio.h>
 
 int main()
