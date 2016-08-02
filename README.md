@@ -1,3 +1,3 @@
 # Matasano Challenge
 
-(https://cryptopals.com/)
+Cryptography challenge by [cryptopals](https://cryptopals.com/)
