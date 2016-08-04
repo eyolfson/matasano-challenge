@@ -6,11 +6,11 @@ Cryptography challenge by [cryptopals](https://cryptopals.com/)
 
 ### Set 01
 
-- Challenge 01
-- Challenge 02
-- Challenge 03
-- Challenge 04
-- Challenge 05
-- Challenge 06
-- Challenge 07
-- Challenge 08
+- [x] Challenge 01
+- [x] Challenge 02
+- [x] Challenge 03
+- [x] Challenge 04
+- [x] Challenge 05
+- [x] Challenge 06
+- [x] Challenge 07
+- [x] Challenge 08
