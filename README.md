@@ -14,3 +14,14 @@ Cryptography challenge by [cryptopals](https://cryptopals.com/)
 - [x] Challenge 06
 - [x] Challenge 07
 - [x] Challenge 08
+
+## Set 02
+
+- [x] Challenge 09
+- [x] Challenge 10
+- [x] Challenge 11
+- [x] Challenge 12
+- [x] Challenge 13
+- [x] Challenge 14
+- [x] Challenge 15
+- [x] Challenge 16
