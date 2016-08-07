@@ -35,3 +35,4 @@ Cryptography challenge by [cryptopals](https://cryptopals.com/)
 - [x] Challenge 21
 - [x] Challenge 22
 - [ ] Challenge 23
+- [ ] Challenge 24
