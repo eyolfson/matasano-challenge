@@ -36,3 +36,7 @@ Cryptography challenge by [cryptopals](https://cryptopals.com/)
 - [x] Challenge 22
 - [ ] Challenge 23
 - [ ] Challenge 24
+
+## Set 04
+
+- [ ] Challenge 25
