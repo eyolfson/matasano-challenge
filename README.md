@@ -2,6 +2,10 @@
 
 Cryptography challenge by [cryptopals](https://cryptopals.com/)
 
+## Details
+
+All solutions are written in C.
+
 ## Completed
 
 ### Set 01
